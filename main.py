@@ -50,8 +50,14 @@ def weixin():
         print('wexin check failed!')
         return 'failed!'
 
-import libs.oauth
 
+@app.route('/bind', methods=['POST'])
+def bind():
+    from libs.oauth import ms_login
+    return ms_login()
+
+
+import libs.oauth
 
 if __name__ == '__main__':
     # host = '0.0.0.0'
