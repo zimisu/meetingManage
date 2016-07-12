@@ -35,7 +35,10 @@ def check_from_wechat(args):
 
 @app.route('/test', methods=['POST', 'GET'])
 def test():
-    return request.args.items().__str__()
+    if request.method == 'GET':
+        return json.dumps(request.args)
+    else:
+        return json.dumps(request.form)
 
 
 @app.route('/weixin', methods=['GET'])
@@ -49,4 +52,6 @@ def weixin():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=80, host='0.0.0.0')
+    # host = '0.0.0.0'
+    host = '127.0.0.1'
+    app.run(debug=True, port=80, host=host)
