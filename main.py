@@ -4,11 +4,11 @@ __author__ = 'kanchan'
 from app import app, TOKEN
 from libs.constants import DEV
 # from flask.ext.pymongo import PyMongo
-from flask import request
+from libs.oauth import *
+from flask import request, session
 import hashlib
 import json
-
-# mongo = PyMongo(app)
+import requests
 
 
 def flask_args_2_my_args(args):
@@ -18,19 +18,30 @@ def flask_args_2_my_args(args):
     return result
 
 
+def request_access_token():
+    url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s' % \
+          (cred['wx']['AppID'], cred['wx']['AppSecret'])
+    return requests.get(url).json()['access_token']
+
+
+def request_wx_user():
+    url = 'https://api.weixin.qq.com/cgi-bin/user/info?access_token=%s&openid=%s' % \
+          (session['access_token'], session['openid'])
+    return requests.get(url).json()
+
 def check_from_wechat(args):
-        if 'signature' in args and 'timestamp' in args and 'nonce' in args and 'echostr' in args:
-            print (''.join(sorted([args['timestamp'],
-                                   args['nonce'],
-                                   TOKEN])))
-            sign = hashlib.sha1(''.join(sorted([args['timestamp'],
-                                                args['nonce'],
-                                                TOKEN])))
-            print('sign: ' + sign.hexdigest())
-            print('signature: ' + args['signature'])
-            if sign.hexdigest() == request.args['signature']:
-                return True
-        return False
+    if 'signature' in args and 'timestamp' in args and 'nonce' in args and 'echostr' in args:
+        print(''.join(sorted([args['timestamp'],
+                              args['nonce'],
+                              TOKEN])))
+        sign = hashlib.sha1(''.join(sorted([args['timestamp'],
+                                            args['nonce'],
+                                            TOKEN])))
+        print('sign: ' + sign.hexdigest())
+        print('signature: ' + args['signature'])
+        if sign.hexdigest() == request.args['signature']:
+            return True
+    return False
 
 
 @app.route('/test', methods=['POST', 'GET'])
@@ -53,11 +64,16 @@ def weixin():
 
 @app.route('/bind', methods=['POST'])
 def bind():
-    from libs.oauth import ms_login
+    session['access_token'] = request_access_token()
+    # 菜单栏事件，内含open_id
+    if 'FromUserName' in request.form:
+        session['openid'] = request.form['FromUserName']
+    session['wx_user'] = request_wx_user()
+    # todo: check again
+    session['wx_user']['outlook'] = ''
+    mongo.db.users.insert(session['wx_user'])
     return ms_login()
 
-
-import libs.oauth
 
 if __name__ == '__main__':
     # host = '0.0.0.0'
@@ -66,4 +82,3 @@ if __name__ == '__main__':
         app.run(debug=True, port=21667, host=host)
     else:
         app.run(port=80, host='0.0.0.0')
-
