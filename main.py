@@ -1,15 +1,13 @@
 # -*-coding:utf-8-*-
 __author__ = 'kanchan'
 
+from app import app, TOKEN
 # from flask.ext.pymongo import PyMongo
-from flask import request, Flask
-import json, hashlib
-
-app = Flask(__name__)
-TOKEN = 'baixingg5'
-
+from flask import request
+import hashlib
 
 # mongo = PyMongo(app)
+
 
 def flask_args_2_my_args(args):
     result = dict(args)
@@ -47,6 +45,8 @@ def weixin():
         print('wexin check failed!')
         return 'failed!'
 
+import libs.oauth
+
 
 if __name__ == '__main__':
-    app.run(debug=True, port=80, host='0.0.0.0')
+    app.run(debug=True, port=21667, host='0.0.0.0')
