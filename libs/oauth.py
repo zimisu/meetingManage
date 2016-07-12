@@ -1,14 +1,15 @@
 import urllib.parse
 
+import jwt
 import requests
 
-from app import app, cred
-from flask import redirect, request
+from app import app, cred, mongo
+from flask import redirect, request, session
 from libs.constants import DOMAIN
 
 
 auth_endpoint_url = 'https://login.chinacloudapi.cn/%s/oauth2/authorize?%%s' % cred['tenant']
-token_endpoint_url = 'https://https://login.chinacloudapi.cn/%s/oauth2/token' % cred['tenant']
+token_endpoint_url = 'https://login.chinacloudapi.cn/%s/oauth2/token' % cred['tenant']
 
 REDIRECT_URI = '/'.join([DOMAIN, 'cb'])
 
@@ -37,5 +38,19 @@ def ms_login_cb():
     }
     r = requests.post(token_endpoint_url, data=token_params)
     d = r.json()
+
+    user_detail = jwt.decode(d['id_token'], verify=False)
+    user_detail.update({
+        'token': d['access_token'],
+        'expires_on': d['expires_on'],
+        'refresh_token': d['refresh_token']
+    })
+
+    wxu = session['wx_user']
+    mongo.db.users.find_one_and_update({
+        '_id': wxu['_id']
+    }, {
+        'outlook': user_detail
+    })
 
     return str(d)

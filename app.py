@@ -1,9 +1,12 @@
 import json
 
 from flask import Flask
+from flask.ext.pymongo import PyMongo
 
-app = Flask(__name__)
+app = Flask('chidao')
 TOKEN = 'baixingg5'
+
+mongo = PyMongo(app)
 
 
 """------ Read credential settings ------"""
