@@ -4,7 +4,7 @@ from app import app, TOKEN
 from libs.constants import DEV
 # from flask.ext.pymongo import PyMongo
 from libs.oauth import *
-from flask import request, session
+from flask import request, session, render_template
 import hashlib, json, requests
 from sign import *
 
@@ -93,6 +93,11 @@ def get_app_args():
     sign = Sign('jsapi_ticket', url).sign()
     sign['appId'] = cred['AppID']
     return json.dumps(sign)
+
+
+@app.route('/check-in-scan', methods=['GET'])
+def check_in_scan():
+    return render_template('check-in-scan.html')
 
 
 @app.route('/check-in', methods=['GET'])

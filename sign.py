@@ -20,14 +20,14 @@ class Sign:
         return int(time.time())
 
     def sign(self):
-        string = '&'.join(['%s=%s' % (key.lower(), self.ret[key]) for key in sorted(self.ret)])
-        print
-        string
-        self.ret['signature'] = hashlib.sha1(string).hexdigest()
+        s = '&'.join(['%s=%s' % (key.lower(), self.ret[key]) for key in sorted(self.ret)])
+        if type(s) != 'str':
+            s = s.encode('utf-8')
+        print(s)
+        self.ret['signature'] = hashlib.sha1(s).hexdigest()
         return self.ret
-
 
 if __name__ == '__main__':
     # 注意 URL 一定要动态获取，不能 hardcode
     sign = Sign('jsapi_ticket', 'http://example.com')
-    sign.sign()
+    print(sign.sign())
