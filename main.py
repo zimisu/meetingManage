@@ -7,6 +7,7 @@ from libs.oauth import *
 from flask import request, session, render_template
 import hashlib, json, requests
 from sign import *
+import pymongo
 
 
 def flask_args_2_my_args(args):
@@ -81,9 +82,24 @@ def bind():
     session['wx_user'] = request_wx_user()
     # todo: check again
     session['wx_user']['outlook'] = ''
-    # if mongo.db.users.
-    mongo.db.users.insert(session['wx_user'])
+    if mongo.db.users.find_one({'openid': session['openid']}) is None:
+        mongo.db.users.insert(session['wx_user'])
     return ms_login()
+
+
+@app.route('/check-in', methods=['POST'])
+def check_in():
+    meetingid = mongo.db.meeting_secret.find_one({'pic-secret': request.form['pic-secret']})
+    try:
+        if meetingid is not None:
+            mongo.db.meeting_secret.update_one({'pic-secret': request.form['pic-secret']},
+                                               {})
+        else:
+            return json.dumps({'result': 'failed',
+                               'reason': 'Can not find a corresponding meeting.'})
+    except pymongo.errors.PyMongoError:
+        return json.dumps({'result': 'failed',
+                           'reason': 'Error when insert into mongodb.'})
 
 
 # todo: 是否有安全性问题？
@@ -98,11 +114,6 @@ def get_app_args():
 @app.route('/check-in-scan', methods=['GET'])
 def check_in_scan():
     return render_template('check-in-scan.html')
-
-
-@app.route('/check-in', methods=['GET'])
-def check_in():
-    pass
 
 
 if __name__ == '__main__':
