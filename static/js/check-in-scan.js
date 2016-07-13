@@ -4,7 +4,7 @@
 
 window.onload = getAppArgs();
 
-var addId, timestamp, nonceStr, signature, isArgsLoaded;
+var appId, timestamp, nonceStr, signature, isArgsLoaded;
 
 function getAppArgs() {
     $.ajax(
