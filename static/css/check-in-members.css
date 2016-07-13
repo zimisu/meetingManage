@@ -1,0 +1,67 @@
+body {
+    margin-top: 15px;
+    background-color: ghostwhite;
+}
+
+.meeting-name {
+    color: #0099cc;
+}
+.meeting-time {
+    color: #cccccc;
+}
+
+.meeting-name {
+    text-align: center;
+}
+
+.meeting-time {
+    text-align: center;
+}
+
+.attended-members, .absent-members {
+    padding: 14px;
+}
+
+.attended-user, .absent-user{
+    display: block;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    width: 21%;
+    height: 90px;
+
+    float: left;
+}
+
+.attended-user-avatar, .absent-user-avatar {
+    display: block;
+    width: 70px;
+    height: 70px;
+
+    overflow: hidden;
+}
+
+.attended-username, .absent-username {
+    display: block;
+
+    text-align: center;
+    font-size: 13px;
+    color: dimgray;
+}
+
+.attended-count {
+    /*position: relative;*/
+    /*top: 15px;*/
+
+    display: block;
+
+    clear: both;
+
+    text-align: center;
+    font-size: small;
+    color: dimgray;
+}
+
+.absent-members-section {
+    background-color: rgba(255,255,255,0.5);
+    /*border: 1px solid #ff6600;*/
+}

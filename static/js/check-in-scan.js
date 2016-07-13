@@ -15,26 +15,31 @@ function getAppArgs() {
             success: function (response) {
                 console.log(response);
 
-                appId = response.addId;
+                appId = response.appId;
                 timestamp = response.timestamp;
                 nonceStr = response.nonceStr;
                 signature = response.signature;
+
+
+                wx.config({
+                    debug: true,
+                    appId: appId,
+                    timestamp : timestamp,
+                    nonceStr: nonceStr,
+                    signature: signature,
+                    jsApiList: [
+                        'checkJsApi',
+                        'scanQRCode'
+                    ]
+                });
+
             }
         }
     );
 
 
 
-    wx.config({
-        debug: true,
-        appId: appId,
-        timestamp : timestamp,
-        signature: signature,
-        jsApiList: [
-            'checkJsApi',
-            'scanQRCode'
-        ]
-    });
+
 
     isArgsLoaded = true;
 
