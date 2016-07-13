@@ -4,26 +4,29 @@ import requests
 from flask import request
 from wechatpy import parse_message
 from wechatpy.events import ClickEvent
+from wechatpy.exceptions import InvalidSignatureException
 from wechatpy.replies import TextReply
+from wechatpy.utils import check_signature
 
-from app import app
+from app import app, TOKEN
 from libs.constants import *
-from libs.wx import wx_menu_init
-
-
-wx_menu_init()
 
 
 @app.route('/weixin', methods=['GET', 'POST'])
 def weixin():
     if request.method == 'GET':
-        pass
-    #     if check_from_wechat(request.args):
-    #         print('wexin check successful!')
-    #         return request.args['echostr']
-    #     else:
-    #         print('wexin check failed!')
-    #         return 'failed!'
+        _g = lambda k: request.args.get(k)
+
+        try:
+            print(TOKEN, _g('signature'), _g('timestamp'), _g('nonce'))
+            check_signature(TOKEN,
+                            _g('signature'),
+                            _g('timestamp'),
+                            _g('nonce'))
+
+            return _g('echostr')
+        except InvalidSignatureException:
+            pass
 
     elif request.method == 'POST':
         msg = parse_message(request.data)
