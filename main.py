@@ -66,10 +66,10 @@ def test():
 @app.route('/weixin', methods=['GET'])
 def weixin():
     if check_from_wechat(request.args):
-        print('wexin check successful!')
+        print('weixin check successful!')
         return request.args['echostr']
     else:
-        print('wexin check failed!')
+        print('weixin check failed!')
         return 'failed!'
 
 
@@ -90,10 +90,15 @@ def bind():
 @app.route('/check-in', methods=['POST'])
 def check_in():
     meetingid = mongo.db.meeting_secret.find_one({'pic-secret': request.form['pic-secret']})
+    # todo: 扫一扫怎么获取用户信息？
+    openid = request.form['openid']
     try:
         if meetingid is not None:
-            mongo.db.meeting_secret.update_one({'pic-secret': request.form['pic-secret']},
-                                               {})
+            mongo.db.meeting.update_one({'meetingid': request.form['meetingid'],
+                                         'attendee': {'openid': openid}},
+                                        {'$set': {
+                                            'attendee': {'status': 'checked'}
+                                        }})
         else:
             return json.dumps({'result': 'failed',
                                'reason': 'Can not find a corresponding meeting.'})
