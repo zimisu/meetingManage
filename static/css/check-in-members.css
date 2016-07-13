@@ -1,11 +1,12 @@
 body {
     margin-top: 15px;
-    background-color: ghostwhite;
+    /*background-color: ghostwhite;*/
+    background-color: snow;
 }
 
 .meeting-name {
     /*color: #0099cc;*/
-    color: #ff6666;
+    /*color: #ff6666;*/
 }
 .meeting-time {
     color: #cccccc;
@@ -36,8 +37,8 @@ body {
 .attended-user-avatar, .absent-user-avatar {
     display: block;
     margin: auto;
-    width: 70px;
-    height: 70px;
+    width: 60px;
+    height: 60px;
 
     border-radius: 35px;
 
