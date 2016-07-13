@@ -22,6 +22,10 @@ def wx_menu_init():
             'type': 'click',
             'name': '开始签到',
             'key': WX_BTN_BEGIN_CHECKIN
+        }, {
+            'type': 'click',
+            'name': '签到',
+            'key': WX_BTN_CHECKIN
         }]
     })
 

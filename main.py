@@ -1,10 +1,11 @@
-# -*-coding:utf-8-*-
-__author__ = 'kanchan'
 from app import app, mongo
 from libs.wx import wx
 from flask import render_template
 import json
-import pymongo
+import pymongo.errors
+
+
+__author__ = 'kanchan'
 
 
 @app.route('/test', methods=['POST', 'GET'])
@@ -61,9 +62,13 @@ def check_in_scan():
 from routes.ms import *
 from routes.wx import *
 
+
 if __name__ == '__main__':
     # host = '0.0.0.0'
     host = '127.0.0.1'
+
+    DEV = False
+
     if DEV:
         app.run(debug=True, port=21667, host=host)
     else:
