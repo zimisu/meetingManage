@@ -1,6 +1,6 @@
 DOMAIN = 'http://bxchidao.qwert42.org'
 
-DEV = True
+DEV = False
 
 
 WX_BTN_BIND_BX = 'bind_bx'
