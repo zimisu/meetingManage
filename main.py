@@ -66,6 +66,9 @@ from routes.wx import *
 if __name__ == '__main__':
     # host = '0.0.0.0'
     host = '127.0.0.1'
+
+    DEV = False
+
     if DEV:
         app.run(debug=True, port=21667, host=host)
     else:

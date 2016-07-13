@@ -1,6 +1,5 @@
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlencode
 
-import requests
 from flask import request
 from wechatpy import parse_message
 from wechatpy.events import ClickEvent
@@ -30,15 +29,17 @@ def weixin():
 
     elif request.method == 'POST':
         msg = parse_message(request.data)
+
         if isinstance(msg, ClickEvent):
             ev = msg
+
             if ev.key == WX_BTN_BIND_BX:
                 reply = TextReply()
                 reply.source = ev.target
                 reply.target = ev.source
                 reply.content = '请访问以下链接登陆到BX邮箱\n%s' % (
-                    requests.get(urljoin(DOMAIN, 'mslogin'), params={
-                        'wx': ev.source
-                    }).url
+                    '%s?%s' % (urljoin(DOMAIN, 'mslogin'),
+                               urlencode({'wx': ev.source}))
                 )
+
                 return reply.render()

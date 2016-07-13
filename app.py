@@ -6,6 +6,8 @@ from flask.ext.pymongo import PyMongo
 app = Flask('chidao')
 TOKEN = 'baixingg5'
 
+app.secret_key = TOKEN
+
 mongo = PyMongo(app)
 
 
