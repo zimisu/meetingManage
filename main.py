@@ -4,7 +4,7 @@ from app import app, mongo
 from libs.wx import wx
 from flask import render_template
 import json
-import pymongo
+import pymongo.errors
 
 
 @app.route('/test', methods=['POST', 'GET'])
@@ -60,6 +60,7 @@ def check_in_scan():
 
 from routes.ms import *
 from routes.wx import *
+
 
 if __name__ == '__main__':
     # host = '0.0.0.0'
