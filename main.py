@@ -99,12 +99,25 @@ def check_in():
                                         {'$set': {
                                             'attendee': {'status': 'checked'}
                                         }})
+            return json.dumps({'result': 'ok'})
         else:
             return json.dumps({'result': 'failed',
                                'reason': 'Can not find a corresponding meeting.'})
     except pymongo.errors.PyMongoError:
         return json.dumps({'result': 'failed',
                            'reason': 'Error when insert into mongodb.'})
+
+
+@app.route('/meeting', methods=['GET'])
+def meeting():
+    try:
+        m = mongo.db.meeting.find_one({'meetingid': request.args.get('meetingid')})
+        m['result'] = 'ok'
+        return json.dumps(m)
+    except Exception:
+        print('get meeting information error.')
+        return json.dumps({'result': 'failed',
+                           'reason': ''})
 
 
 # todo: 是否有安全性问题？
