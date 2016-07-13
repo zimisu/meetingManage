@@ -4,7 +4,8 @@ body {
 }
 
 .meeting-name {
-    color: #0099cc;
+    /*color: #0099cc;*/
+    color: #ff6666;
 }
 .meeting-time {
     color: #cccccc;
@@ -34,8 +35,11 @@ body {
 
 .attended-user-avatar, .absent-user-avatar {
     display: block;
+    margin: auto;
     width: 70px;
     height: 70px;
+
+    border-radius: 35px;
 
     overflow: hidden;
 }
@@ -59,6 +63,11 @@ body {
     text-align: center;
     font-size: small;
     color: dimgray;
+}
+
+.attended-members-section {
+    padding-bottom: 10px;
+    /*background-color: rgba(255,255,255,0.8);*/
 }
 
 .absent-members-section {
