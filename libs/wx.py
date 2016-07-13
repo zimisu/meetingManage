@@ -25,24 +25,3 @@ def wx_menu_init():
         }]
     })
 
-
-def flask_args_2_my_args(args):
-    result = dict(args)
-    for k in result:
-        result[k] = args[k]
-    return result
-
-
-def check_from_wechat(args):
-        if 'signature' in args and 'timestamp' in args and 'nonce' in args and 'echostr' in args:
-            print (''.join(sorted([args['timestamp'],
-                                   args['nonce'],
-                                   TOKEN])))
-            sign = hashlib.sha1(''.join(sorted([args['timestamp'],
-                                                args['nonce'],
-                                                TOKEN])))
-            print('sign: ' + sign.hexdigest())
-            print('signature: ' + args['signature'])
-            if sign.hexdigest() == args['signature']:
-                return True
-        return False

@@ -8,7 +8,7 @@ from wechatpy.replies import TextReply
 
 from app import app
 from libs.constants import *
-from libs.wx import check_from_wechat, wx_menu_init
+from libs.wx import wx_menu_init
 
 
 wx_menu_init()
@@ -17,12 +17,13 @@ wx_menu_init()
 @app.route('/weixin', methods=['GET', 'POST'])
 def weixin():
     if request.method == 'GET':
-        if check_from_wechat(request.args):
-            print('wexin check successful!')
-            return request.args['echostr']
-        else:
-            print('wexin check failed!')
-            return 'failed!'
+        pass
+    #     if check_from_wechat(request.args):
+    #         print('wexin check successful!')
+    #         return request.args['echostr']
+    #     else:
+    #         print('wexin check failed!')
+    #         return 'failed!'
 
     elif request.method == 'POST':
         msg = parse_message(request.data)
