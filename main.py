@@ -1,10 +1,11 @@
-# -*-coding:utf-8-*-
-__author__ = 'kanchan'
 from app import app, mongo
 from libs.wx import wx
 from flask import render_template
 import json
 import pymongo.errors
+
+
+__author__ = 'kanchan'
 
 
 @app.route('/test', methods=['POST', 'GET'])
