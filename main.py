@@ -21,6 +21,32 @@ def test():
         return json.jsonify(request.form)
 
 
+@app.route('/new-qr-code/<meetingid>', methods=['GET'])
+def new_qr_code(meetingid):
+    # todo: uncompleted
+    # res = {"ticket": string, "expire_seconds": int, "url":qr-pic-url}
+    res = wx.qrcode.create({
+        'expire_seconds': 1800,
+        'action_name': 'QR_SCENE',
+        'action_info': {
+            'scene': {'scene_id': meetingid}
+        }
+    })
+    return json.jsonify({'url': wx.qrcode.get_url(res['ticket']), 'result': 'ok'})
+
+
+@app.route('/check-in-members', methods=['GET'])
+@app.route('/check-in-members.html', methods=['GET'])
+def check_in_members():
+    return render_template('check-in-members.html')
+
+
+@app.route('/check-in-meetings', methods=['GET'])
+@app.route('/check-in-meetings.html', methods=['GET'])
+def check_in_meetings():
+    return render_template('check-in-meetings.html')
+
+
 @app.route('/check-in', methods=['POST'])
 def check_in():
     meetingid = mongo.db.meeting_secret.find_one({'pic-secret': request.form['pic-secret']})['meetingid']
@@ -28,11 +54,18 @@ def check_in():
     openid = request.form['openid']
     try:
         if meetingid is not None:
+            tmp = mongo.db.meeting.find_one({'meetingid': request.form['meetingid'],
+                                             'attendee': {'openid': openid}},
+                                            {'_id': 0})
+            # check whether the attendee had checked
+            for user in tmp['attendee']:
+                if user['openid'] == openid:
+                    if user['status'] == 'checked':
+                        return error_return('checked')
+                    break
             mongo.db.meeting.update_one({'meetingid': request.form['meetingid'],
-                                         'attendee': {'openid': openid}},
-                                        {'$set': {
-                                            'attendee': {'status': 'checked'}
-                                        }})
+                                         'attendee.openid': openid},
+                                        {'$set': {'attendee.status': 'checked'}})
             return json.jsonify({'result': 'ok'})
         else:
             return error_return('Can not find a corresponding meeting.')
@@ -50,25 +83,24 @@ def check_in():
 @app.route('/meeting/<meetingid>', methods=['GET'])
 def meeting(meetingid=None):
     # todo: get openid
-    openid = ''
+    openid = 'oBNGbwLgI3-SCcSTPA9VyVVeaXQc'
     if mongo.db.users.find({'openid': openid}).count() == 0:
         print('openid: %s is not in mongodb.Should bind first.')
         return error_return('该用户未绑定百姓网账号，请先绑定')
     try:
         if meetingid is not None:
-            # todo: 带入用户信息. check it again
             ret = mongo.db.meeting.find_one({'meetingid': meetingid,
-                                             'attendee.openid': openid})
-            wx_user = json.loads(wx.user.get(openid))
+                                             'attendee.openid': openid}, {'_id': 0})
             for i in range(len(ret['attendee'])):
+                wx_user = wx.user.get(ret['attendee'][i]['openid'])
                 ret['attendee'][i].update(wx_user)
             ret['result'] = 'ok'
             return json.jsonify(ret)
         else:
             # todo: check it again. 是否需要带入用户信息？
             ret = {'result': 'ok',
-                   'meetings': mongo.db.meeting.find({'attendee.openid': openid})}
-            return ret
+                   'meetings': [i for i in mongo.db.meeting.find({'attendee.openid': openid}, {'_id': 0})]}
+            return json.jsonify(ret)
     except pymongo.errors.PyMongoError:
         traceback.print_exc()
         reason = 'meeting(): Error exists when get meeting in mongo.'
@@ -84,9 +116,9 @@ def meeting(meetingid=None):
 @app.route('/punishments', methods=['GET'])
 def punishments():
     try:
-        ret = {'punishments': mongo.db.punishments.find(),
+        ret = {'punishments': [i for i in mongo.db.punishments.find({}, {'_id': 0})],
                'result': 'ok'}
-        return ret
+        return json.jsonify(ret)
     except:
         traceback.print_exc()
         reason = 'punishments(): Error exists when get punishments'
@@ -98,12 +130,59 @@ def punishments():
 def add_punishment():
     try:
         item = {'ptype': int(request.form['ptype']),
-                'content': request.form['content']}
+                'content': request.form['content'],
+                'punishment_id': mongo.db.punishments.find().count()}
         mongo.db.punishments.insert_one(item)
         return json.jsonify({'result': 'ok'})
     except:
         traceback.print_exc()
         reason = 'add_punishment(): Error exists when add punishment'
+        print(reason)
+        return error_return(reason)
+
+
+@app.route('/bind_meeting_punishment', methods=['POST'])
+def bind_meeting_punishment():
+    try:
+        meetingid = request.args['meetingid']
+        punishment_id = request.args['punishment_id']
+        mongo.db.meeting.update({'meetingid': meetingid},
+                                {'punishment_id': punishment_id})
+        return json.jsonify({'result': 'ok'})
+    except pymongo.errors.PyMongoError:
+        traceback.print_exc()
+        reason = 'bind_meeting_punishment(): Error exists when bind punishment to meeting.'
+        print(reason)
+        return error_return(reason)
+    except:
+        traceback.print_exc()
+        reason = 'bind_meeting_punishment(): Other error exists.'
+        print(reason)
+        return error_return(reason)
+
+
+@app.route('/attendee', methods=['GET'])
+def attendee():
+    try:
+        meetingid = request.args['meetingid']
+        openid = request.args['openid']
+        m = mongo.db.meeting.find_one({'meetingid': meetingid})
+        if m is None:
+            return error_return('Could not find the meeting')
+        for user in m['attendee']:
+            if user['openid'] == openid:
+                ret = user
+                ret['result'] = 'ok'
+                return json.jsonify(ret)
+        return error_return('Could not find the attendee')
+    except pymongo.errors.PyMongoError:
+        traceback.print_exc()
+        reason = 'attendee(): Error exists when query attendee from mongo db.'
+        print(reason)
+        return error_return(reason)
+    except:
+        traceback.print_exc()
+        reason = 'attendee(): Other error exists.'
         print(reason)
         return error_return(reason)
 
@@ -124,6 +203,12 @@ def get_app_args():
 @app.route('/check-in-scan', methods=['GET'])
 def check_in_scan():
     return render_template('check-in-scan.html')
+
+
+@app.route('/assign-punishment', methods=['GET'])
+@app.route('/assign-punishment.html', methods=['GET'])
+def assign_punishment():
+    return render_template('assign-punishment.html')
 
 
 from routes.ms import *
