@@ -1,4 +1,6 @@
 # -*-coding:utf-8-*-
+from wechatpy.utils import check_signature
+
 __author__ = 'kanchan'
 from app import app, TOKEN
 from libs.constants import DEV
@@ -119,6 +121,10 @@ def get_app_args():
 @app.route('/check-in-scan', methods=['GET'])
 def check_in_scan():
     return render_template('check-in-scan.html')
+
+
+from routes.ms import *
+from routes.wx import *
 
 
 if __name__ == '__main__':
