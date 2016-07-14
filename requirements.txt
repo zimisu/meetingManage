@@ -5,3 +5,5 @@ PyMongo>=3.2.0
 flask-pymongo==0.4.1
 wechatpy==1.2.13
 cryptography
+flask_socketio
+python-memcached

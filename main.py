@@ -1,4 +1,4 @@
-from app import app, mongo
+from app import app, mongo, sio
 from libs.wx import wx
 from flask import render_template, session
 from flask import json
@@ -218,6 +218,6 @@ if __name__ == '__main__':
     DEV = False
 
     if DEV:
-        app.run(debug=True, port=21667, host=host)
+        sio.run(app, debug=True, port=21667, host=host)
     else:
-        app.run(debug=False, port=80, host='0.0.0.0')
+        sio.run(app, debug=False, port=80, host='0.0.0.0')
