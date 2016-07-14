@@ -1,3 +1,4 @@
+from pprint import pformat
 from urllib.parse import urljoin, urlencode
 
 from flask import request
@@ -10,6 +11,7 @@ from wechatpy.utils import check_signature
 
 from app import app, TOKEN
 from libs.constants import *
+from libs.outlook.events import get_events_by_wxid_x
 from libs.utility import check_in
 # from libs.outlook.events import get_events_by_wxid_x
 
@@ -46,6 +48,16 @@ def weixin():
                 )
 
                 return reply.render()
+
+        elif isinstance(msg, TextMessage):
+            if msg.content.startswith('ev'):
+                reply = TextReply()
+                reply.source = msg.target
+                reply.target = msg.source
+                reply.content = pformat(get_events_by_wxid_x(msg.source))
+
+                return reply.render()
+
         elif isinstance(msg, ScanEvent) or isinstance(msg, SubscribeScanEvent):
             openid = msg.source
             meetingid = msg.scene_id
