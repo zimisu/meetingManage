@@ -30,12 +30,17 @@ def get_strtime(t=None):
 
 def check_in(openid, meetingid):
     try:
-        m = mongo.db.meetings.find_one({'meetingid': meetingid})
+        print(openid)
+        print(meetingid)
+        meetingid = str(meetingid)
+        m = mongo.db.meeting.find_one({'meetingid': meetingid})
+        print(m)
         for user in m['attendee']:
             if user['openid'] == openid:
                 if user['status'] == 'checked':
                     return '已经签到啦，不用重复签到'
                 else:
+                    print('update')
                     mongo.db.meeting.update_one({'meetingid': meetingid,
                                                  'attendee.openid': openid},
                                                 {'$set': {'attendee.status': 'checked'}})

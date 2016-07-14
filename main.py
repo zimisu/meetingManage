@@ -87,8 +87,12 @@ def meeting(meetingid=None):
         if meetingid is not None:
             ret = mongo.db.meeting.find_one({'meetingid': meetingid,
                                              'attendee.openid': openid}, {'_id': 0})
+            print('------=======')
+            print(ret['attendee'])
             for i in range(len(ret['attendee'])):
-                print(ret['attendee'])
+                print('-------')
+                print(ret['attendee'][i])
+                print(ret['attendee'][i]['openid'])
                 wx_user = wx.user.get(ret['attendee'][i]['openid'])
                 ret['attendee'][i].update(wx_user)
             ret['result'] = 'ok'
@@ -206,6 +210,11 @@ def check_in_scan():
 @app.route('/assign-punishment.html', methods=['GET'])
 def assign_punishment():
     return render_template('assign-punishment.html')
+
+
+@app.route('/punishments_', methods=['GET'])
+def punishments_html():
+    return render_template('punishments.html')
 
 
 from routes.ms import *
