@@ -4,14 +4,21 @@ body {
 }
 
 .meeting-item {
+    display: block;
     margin: 15px auto 15px auto;
     padding: 10px;
     width: 90%;
-    height: 90px;
+    height: 150px;
 
     /*border: 1px solid black;*/
     background-color: white;
     box-shadow: 0 0 1px 1px lightgray;
+    text-decoration: none;
+    color: #666;
+}
+
+.meeting-name {
+    height: 100px;
 }
 
 .meeting-location {

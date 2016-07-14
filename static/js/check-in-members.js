@@ -18,6 +18,7 @@ function showMembers() {
             if (response.result == "ok") {
                 $('.meeting-name')[0].innerText = response.title;
                 $('.meeting-time')[0].innerText = response.time;
+
                 console.log(response.attendee);
                 var length = response.attendee.length;
                 var attendedCount = 0;
