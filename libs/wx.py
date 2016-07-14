@@ -2,11 +2,13 @@ import hashlib
 from urllib.parse import urljoin
 
 from wechatpy import WeChatClient
+from wechatpy.session.memcachedstorage import MemcachedStorage
 
-from app import cred, app, TOKEN, mongo
+from app import cred, app, TOKEN, mongo, mc
 
 wx = WeChatClient(appid=cred['wx']['AppID'],
-                  secret=cred['wx']['AppSecret'])
+                  secret=cred['wx']['AppSecret'],
+                  session=MemcachedStorage(mc))
 
 from libs.constants import *
 
