@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+    <title>自定义惩罚</title>
+
+    <link rel="stylesheet" href="../static/css/lib/weui.min.css"/>
+    <link rel="stylesheet" href="../static/css/lib/weui.css"/>
+    <link rel="stylesheet" href="../static/css/add-punishment.css"/>
+</head>
+<body>
+
+<div class="add-punishment-item">
+    <p class="add-punishment-rule">每迟到<input class="add-punishment-input add-punishment-minute" value="1">分钟，交出<input
+            class="add-punishment-input add-punishment-amount" value="0">人民币</p>
+    <a class="weui_btn weui_btn_default save-punishment-btn">就决定是这样了！</a>
+</div>
+
+<div class="add-punishment-item">
+    <p class="add-punishment-rule">每迟到<input class="add-punishment-input add-punishment-minute" value="1">分钟，<input
+            class="add-punishment-input add-punishment-count" value="0">个<input
+            class="add-punishment-input add-punishment-way" value="俯卧撑"></p>
+    <a class="weui_btn weui_btn_default save-punishment-btn">就决定是这样了！</a>
+</div>
+
+<div class="add-punishment-item">
+    <div class="add-punishment-rule">如果迟到，就要
+        <textarea class="add-punishment-description"></textarea></div>
+    <a class="weui_btn weui_btn_default save-punishment-btn">就决定是这样了！</a>
+</div>
+
+<script src="../static/js/lib/jquery-2.1.3.min.js"></script>
+<script src="../static/js/add-punishment.js"></script>
+</body>
+</html>
