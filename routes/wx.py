@@ -50,11 +50,13 @@ def weixin():
                 return reply.render()
 
         elif isinstance(msg, TextMessage):
-            if msg.content.startswith('ev'):
+            if msg.content.lower().startswith('e'):
                 reply = TextReply()
                 reply.source = msg.target
                 reply.target = msg.source
-                reply.content = pformat(get_events_by_wxid_x(msg.source))[:100]
+                reply.content = '请访问以下链接选择开始哪个会议\n%s' % (
+                    '%s/meeting?openid=%s' % (DOMAIN, msg.source)
+                )
 
                 return reply.render()
 

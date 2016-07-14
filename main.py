@@ -5,6 +5,7 @@ from flask import json
 import traceback
 import pymongo.errors
 from libs.utility import error_return
+from datetime import datetime
 
 __author__ = 'kanchan'
 
@@ -61,7 +62,8 @@ def check_in():
                     break
             mongo.db.meeting.update_one({'meetingid': request.form['meetingid'],
                                          'attendee.openid': openid},
-                                        {'$set': {'attendee.status': 'checked'}})
+                                        {'$set': {'attendee.status': 'checked',
+                                                  'attendee.time': datetime.now()}})
             return json.jsonify({'result': 'ok'})
         else:
             return error_return('Can not find a corresponding meeting.')
@@ -75,11 +77,10 @@ def check_in():
         return error_return('Other exception')
 
 
-@app.route('/meeting/', methods=['GET'])
+@app.route('/meeting', methods=['GET'])
 @app.route('/meeting/<meetingid>', methods=['GET'])
 def meeting(meetingid=None):
-    # todo: get openid
-    openid = 'oiNduwH4BC3nKrSfd6HQRMsKRY88'
+    openid = request.args.get('openid', '')
     if mongo.db.users.find({'openid': openid}).count() == 0:
         print('openid: %s is not in mongodb.Should bind first.')
         return error_return('该用户未绑定百姓网账号，请先绑定')
