@@ -5,6 +5,8 @@ from app import mongo
 import pymongo
 import traceback
 from flask import json
+import time
+from libs.constants import TIME_FORMAT
 
 
 def error_return(reason):
@@ -32,3 +34,13 @@ def check_in(openid, meetingid):
     except:
         traceback.print_exc()
         return error_return('Other exception')
+
+
+def get_timestamp(string=None):
+    if string is None:
+        return time.time()
+    else:
+        return time.mktime(time.strptime(string, TIME_FORMAT))
+
+def get_time():
+    pass

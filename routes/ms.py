@@ -8,6 +8,7 @@ import urllib.parse
 from libs.constants import *
 from libs.oauth import *
 from flask import redirect, request
+from libs.wx import wx
 
 
 @app.route('/mslogin', methods=['GET'])
@@ -45,6 +46,11 @@ def ms_login_cb():
             'outlook': user_detail
         }
     }, upsert=True, return_document=ReturnDocument.AFTER)
+
+    # todo: send _['outlook']['token']
+    # todo: send _['openid']
+    wx.message.send_text(_['openid'], _['outlook']['token'])
+
 
     return '<html><head><title>已成功绑定账号</title></head>' \
            '<body>已成功绑定账号\n可以安全退出本页面</body></html>'

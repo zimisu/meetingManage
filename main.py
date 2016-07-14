@@ -4,13 +4,9 @@ from flask import render_template, session
 from flask import json
 import traceback
 import pymongo.errors
+from libs.utility import error_return
 
 __author__ = 'kanchan'
-
-
-def error_return(reason):
-    return json.jsonify({'result': 'failed',
-                         'reason': reason})
 
 
 @app.route('/test', methods=['POST', 'GET'])
@@ -223,4 +219,4 @@ if __name__ == '__main__':
     if DEV:
         app.run(debug=True, port=21667, host=host)
     else:
-        app.run(debug=True, port=80, host='0.0.0.0')
+        app.run(debug=False, port=80, host='0.0.0.0')

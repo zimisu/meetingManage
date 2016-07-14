@@ -2,7 +2,6 @@ DOMAIN = 'http://bxchidao.qwert42.org'
 
 DEV = False
 
-
 WX_BTN_BIND_BX = 'bind_bx'
 WX_BTN_BEGIN_CHECKIN = 'begin_checkin'
 WX_BTN_CHECKIN = 'checkin'
@@ -13,3 +12,4 @@ REDIRECT_URI = '/'.join([DOMAIN, 'cb'])
 
 RESOURCE = 'https://microsoftgraph.chinacloudapi.cn'
 GRAPH_EP = '%s/v1.0' % RESOURCE
+TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
