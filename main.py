@@ -75,11 +75,11 @@ def check_in():
         return error_return('Other exception')
 
 
-@app.route('/meeting/', methods=['GET'])
+@app.route('/meeting', methods=['GET'])
 @app.route('/meeting/<meetingid>', methods=['GET'])
 def meeting(meetingid=None):
-    # todo: get openid
-    openid = 'oBNGbwLgI3-SCcSTPA9VyVVeaXQc'
+    openid = request.args.get('openid', '')
+
     if mongo.db.users.find({'openid': openid}).count() == 0:
         print('openid: %s is not in mongodb.Should bind first.')
         return error_return('该用户未绑定百姓网账号，请先绑定')
