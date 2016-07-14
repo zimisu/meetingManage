@@ -62,6 +62,12 @@ def weixin():
                     '%s/check-in-meetings?openid=%s' % (DOMAIN, msg.source)
                 )
                 return reply.render()
+            else:
+                reply = TextReply()
+                reply.source = msg.target
+                reply.target = msg.source
+                reply.content = '哦'
+                return reply.render()
 
         elif isinstance(msg, TextMessage):
             if msg.content.lower().startswith('e'):
@@ -73,6 +79,8 @@ def weixin():
                 )
 
                 return reply.render()
+            else:
+                return '哦'
 
         elif isinstance(msg, ScanEvent) or isinstance(msg, SubscribeScanEvent):
             openid = msg.source
