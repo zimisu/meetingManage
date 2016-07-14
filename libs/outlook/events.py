@@ -7,6 +7,8 @@ from pymongo import ReturnDocument
 from app import mongo
 from libs.oauth import get_token
 from libs.outlook import graph
+from libs.utility import process_meeting_data
+import json
 
 
 def get_events_by_wxid(u):
@@ -25,11 +27,7 @@ def get_events_by_wxid(u):
 
 def get_events_by_wxid_x(openid):
     u = mongo.db.users.find_one({'openid': openid})
-
     r = get_events_by_wxid(u)
-    # pprint(r)
-    with open('~/a.txt', 'w') as file:
-        file.write(r)
 
     if 'odata.error' in r:
         if r['odata.error']['code'] == 'Authentication_ExpiredToken':
@@ -45,7 +43,7 @@ def get_events_by_wxid_x(openid):
                 }
             }, return_document=ReturnDocument.AFTER)
 
-            return get_events_by_wxid(doc)
-    else:
-        return r
+            r = get_events_by_wxid(doc)
 
+    process_meeting_data(r)
+    return r

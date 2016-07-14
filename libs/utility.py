@@ -62,3 +62,47 @@ def check_in(openid, meetingid):
     except:
         traceback.print_exc()
         return error_return('Other exception')
+
+
+def create_attendee(man):
+    attendee = {'email': man['emailAddress']['address'],
+                'status': 'not checked',
+                'timestamp': 0,
+                'openid': ''}
+    tmp = mongo.db.users.find_one({'outlook.upn': attendee['email']})
+    if tmp is not None:
+        attendee['openid'] = tmp['openid']
+    return attendee
+
+
+def insert_meeting_data(m):
+    if mongo.db.meeting.find_one({'id': m['id']}) is not None:
+        return
+    print('begin to insert meeting')
+    t = m['start']['dateTime']
+    t = t[:t.find('.')]
+    result = {
+        # todo: meetingid
+        'meetingid': str(mongo.db.meeting.find().count()),
+        'timestamp': time.mktime(time.strptime(t, '%Y-%m-%dT%H:%M:%S')),
+        'id': m['id'],
+        'title': m['subject'],
+        'content': m['bodyPreview'],
+        'place': m['location']['displayName'],
+        'start': 0,
+        'punishment_id': 0,
+        'attendee': []
+    }
+    for man in m['attendees']:
+        result['attendee'].append(create_attendee(man))
+    result['attendee'].append(create_attendee(m['organizer']))
+    mongo.db.meeting.insert(result)
+
+
+def process_meeting_data(data):
+    # print('---------***-------')
+    # for k in data:
+    #     print(k)
+    # print('---------***-------')
+    for m in data['value']:
+        insert_meeting_data(m)

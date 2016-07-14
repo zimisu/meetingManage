@@ -47,7 +47,14 @@ def weixin():
                     '%s?%s' % (urljoin(DOMAIN, 'mslogin'),
                                urlencode({'wx': ev.source}))
                 )
-
+                return reply.render()
+            elif ev.key == WX_BTN_BEGIN_CHECKIN:
+                reply = TextReply()
+                reply.source = msg.target
+                reply.target = msg.source
+                reply.content = '请访问以下链接选择开始哪个会议\n%s' % (
+                    '%s/check-in-meetings?openid=%s' % (DOMAIN, msg.source)
+                )
                 return reply.render()
 
         elif isinstance(msg, TextMessage):
@@ -56,7 +63,7 @@ def weixin():
                 reply.source = msg.target
                 reply.target = msg.source
                 reply.content = '请访问以下链接选择开始哪个会议\n%s' % (
-                    '%s/meeting?openid=%s' % (DOMAIN, msg.source)
+                    '%s/check-in-meetings?openid=%s' % (DOMAIN, msg.source)
                 )
 
                 return reply.render()

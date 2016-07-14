@@ -32,18 +32,6 @@ def new_qr_code(meetingid):
     return json.jsonify({'url': wx.qrcode.get_url(res['ticket']), 'result': 'ok'})
 
 
-@app.route('/check-in-members', methods=['GET'])
-@app.route('/check-in-members.html', methods=['GET'])
-def check_in_members():
-    return render_template('check-in-members.html')
-
-
-@app.route('/check-in-meetings', methods=['GET'])
-@app.route('/check-in-meetings.html', methods=['GET'])
-def check_in_meetings():
-    return render_template('check-in-meetings.html')
-
-
 @app.route('/check-in', methods=['POST'])
 def check_in():
     meetingid = mongo.db.meeting_secret.find_one({'pic-secret': request.form['pic-secret']})['meetingid']
@@ -78,25 +66,27 @@ def check_in():
 
 
 @app.route('/meeting', methods=['GET'])
+@app.route('/meeting/', methods=['GET'])
 @app.route('/meeting/<meetingid>', methods=['GET'])
 def meeting(meetingid=None):
     openid = request.args.get('openid', '')
-    if mongo.db.users.find({'openid': openid}).count() == 0:
-        print('openid: %s is not in mongodb.Should bind first.')
-        return error_return('该用户未绑定百姓网账号，请先绑定')
     try:
-        if meetingid is not None:
-            ret = mongo.db.meeting.find_one({'meetingid': meetingid,
-                                             'attendee.openid': openid}, {'_id': 0})
-            for i in range(len(ret['attendee'])):
-                wx_user = wx.user.get(ret['attendee'][i]['openid'])
-                ret['attendee'][i].update(wx_user)
-            ret['result'] = 'ok'
-            return json.jsonify(ret)
-        else:
-            # todo: check it again. 是否需要带入用户信息？
+        if meetingid is None:
+            if mongo.db.users.find({'openid': openid}).count() == 0:
+                print('openid: %s is not in mongodb.Should bind first.' % openid)
+                return error_return('该用户未绑定百姓网账号，请先绑定')
+            get_events_by_wxid_x(openid)
+
             ret = {'result': 'ok',
                    'meetings': [i for i in mongo.db.meeting.find({'attendee.openid': openid}, {'_id': 0})]}
+            return json.jsonify(ret)
+        else:
+            ret = mongo.db.meeting.find_one({'meetingid': meetingid}, {'_id': 0})
+            for i in range(len(ret['attendee'])):
+                if ret['attendee'][i]['openid'] != '':
+                    wx_user = wx.user.get(ret['attendee'][i]['openid'])
+                    ret['attendee'][i].update(wx_user)
+            ret['result'] = 'ok'
             return json.jsonify(ret)
     except pymongo.errors.PyMongoError:
         traceback.print_exc()
@@ -126,9 +116,8 @@ def punishments():
 @app.route('/add_punishment', methods=['POST'])
 def add_punishment():
     try:
-        item = {'ptype': int(request.form['ptype']),
-                'content': request.form['content'],
-                'punishment_id': mongo.db.punishments.find().count()}
+        item = request.form.to_dict()
+        item['punishment_id'] = mongo.db.punishments.find().count()
         mongo.db.punishments.insert_one(item)
         return json.jsonify({'result': 'ok'})
     except:
@@ -198,6 +187,7 @@ def get_app_args():
 
 
 @app.route('/check-in-scan', methods=['GET'])
+@app.route('/check-in-scan.html', methods=['GET'])
 def check_in_scan():
     return render_template('check-in-scan.html')
 
@@ -209,8 +199,33 @@ def assign_punishment():
 
 
 @app.route('/punishments_', methods=['GET'])
+@app.route('/punishments.html', methods=['GET'])
 def punishments_html():
     return render_template('punishments.html')
+
+
+@app.route('/add-punishment.html', methods=['GET'])
+def add_punishment_html():
+    return render_template('add-punishment.html')
+
+
+@app.route('/show-QR-code', methods=['GET'])
+@app.route('/show-QR-code.html', methods=['GET'])
+def show_qr_code_html():
+    return render_template('show-QR-code.html')
+
+
+@app.route('/check-in-members', methods=['GET'])
+@app.route('/check-in-members.html', methods=['GET'])
+def check_in_members():
+    return render_template('check-in-members.html')
+
+
+@app.route('/check-in-meetings', methods=['GET'])
+@app.route('/check-in-meetings.html', methods=['GET'])
+def check_in_meetings():
+    return render_template('check-in-meetings.html')
+
 
 
 from routes.ms import *
