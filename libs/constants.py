@@ -11,4 +11,5 @@ WX_BTN_CHECKIN = 'checkin'
 REDIRECT_URI = '/'.join([DOMAIN, 'cb'])
 # REDIRECT_URI = 'http://127.0.0.1:21569/cb'
 
-RESOURCE = 'https://graph.chinacloudapi.cn/'
+RESOURCE = 'https://microsoftgraph.chinacloudapi.cn'
+GRAPH_EP = '%s/v1.0' % RESOURCE
