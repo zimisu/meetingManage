@@ -22,7 +22,7 @@ def new_qr_code(meetingid):
     # todo: uncompleted
     # res = {"ticket": string, "expire_seconds": int, "url":qr-pic-url}
     res = wx.qrcode.create({
-        'expire_seconds': 1800,
+        'expire_seconds': 36000,
         'action_name': 'QR_SCENE',
         'action_info': {
             'scene': {'scene_id': meetingid}
@@ -79,7 +79,7 @@ def check_in():
 @app.route('/meeting/<meetingid>', methods=['GET'])
 def meeting(meetingid=None):
     # todo: get openid
-    openid = 'oBNGbwLgI3-SCcSTPA9VyVVeaXQc'
+    openid = 'oiNduwH4BC3nKrSfd6HQRMsKRY88'
     if mongo.db.users.find({'openid': openid}).count() == 0:
         print('openid: %s is not in mongodb.Should bind first.')
         return error_return('该用户未绑定百姓网账号，请先绑定')
@@ -87,12 +87,7 @@ def meeting(meetingid=None):
         if meetingid is not None:
             ret = mongo.db.meeting.find_one({'meetingid': meetingid,
                                              'attendee.openid': openid}, {'_id': 0})
-            print('------=======')
-            print(ret['attendee'])
             for i in range(len(ret['attendee'])):
-                print('-------')
-                print(ret['attendee'][i])
-                print(ret['attendee'][i]['openid'])
                 wx_user = wx.user.get(ret['attendee'][i]['openid'])
                 ret['attendee'][i].update(wx_user)
             ret['result'] = 'ok'

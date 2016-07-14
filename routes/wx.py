@@ -54,7 +54,7 @@ def weixin():
                 reply = TextReply()
                 reply.source = msg.target
                 reply.target = msg.source
-                reply.content = pformat(get_events_by_wxid_x(msg.source))
+                reply.content = pformat(get_events_by_wxid_x(msg.source))[:100]
 
                 return reply.render()
 

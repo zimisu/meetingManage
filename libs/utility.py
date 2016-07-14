@@ -34,16 +34,26 @@ def check_in(openid, meetingid):
         print(meetingid)
         meetingid = str(meetingid)
         m = mongo.db.meeting.find_one({'meetingid': meetingid})
+        mongo.db.meeting.find_one({'meetingid': meetingid,
+                                   'attendee.openid': openid})
+        if m is None:
+            print('The user doesn''t take part in this meeting')
+            return error_return('该用户没有参加该会议')
         print(m)
-        for user in m['attendee']:
-            if user['openid'] == openid:
-                if user['status'] == 'checked':
+        for i in range(len(m['attendee'])):
+            user = lambda k: m['attendee'][k]
+            if user(i)['openid'] == openid:
+                if user(i)['status'] == 'checked':
+                    print('This user doesn''t need to check in')
                     return '已经签到啦，不用重复签到'
                 else:
                     print('update')
-                    mongo.db.meeting.update_one({'meetingid': meetingid,
-                                                 'attendee.openid': openid},
-                                                {'$set': {'attendee.status': 'checked'}})
+                    user(i)['status'] = 'checked'
+                    user(i)['time'] = get_strtime()
+                    user(i)['timestamp'] = get_timestamp()
+                    mongo.db.meeting.update_one({'meetingid': meetingid},
+                                                {'$set': m})
+                    print('check-in successful!!!')
                     return '签到成功！'
     except pymongo.errors.PyMongoError:
         traceback.print_exc()
