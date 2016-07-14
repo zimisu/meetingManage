@@ -20,7 +20,6 @@ $('.save-punishment-btn')[0].onclick = function () {
             success: function (response) {
                 console.log(response);
 
-
                 if (response.result === 'ok') {
                     alert("这个点子已加入惩罚库！");
                 } else {
@@ -46,7 +45,10 @@ $('.save-punishment-btn')[1].onclick = function () {
             method: 'POST',
             data: {
                 ptype: 2,
-                content: [minute, count, way]
+                content0: minute,
+                content1: count,
+                content2: way
+                //content: [minute, count, way]
             },
             dataType: 'JSON',
             success: function (response) {
@@ -73,7 +75,8 @@ $('.save-punishment-btn')[2].onclick = function () {
         method: 'POST',
         data: {
             ptype: 0,
-            content: [description]
+            content0: description
+            //content: [description]
         },
         dataType: 'JSON',
         success: function (response) {

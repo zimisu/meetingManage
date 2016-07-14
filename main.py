@@ -117,8 +117,13 @@ def punishments():
 def add_punishment():
     try:
         item = request.form.to_dict()
-        item['punishment_id'] = mongo.db.punishments.find().count()
-        mongo.db.punishments.insert_one(item)
+        tmp = {'ptype': item['ptype'],
+               'content': [1] * (len(item) - 1)}
+        print(item)
+        for i in range(len(item) - 1):
+            tmp['content'][i] = item['content' + str(i)]
+        tmp['punishment_id'] = mongo.db.punishments.find().count()
+        mongo.db.punishments.insert_one(tmp)
         return json.jsonify({'result': 'ok'})
     except:
         traceback.print_exc()
