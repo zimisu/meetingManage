@@ -28,6 +28,8 @@ def get_events_by_wxid_x(openid):
 
     r = get_events_by_wxid(u)
     # pprint(r)
+    with open('~/a.txt', 'w') as file:
+        file.write(r)
 
     if 'odata.error' in r:
         if r['odata.error']['code'] == 'Authentication_ExpiredToken':

@@ -49,8 +49,7 @@ def check_in(openid, meetingid):
                 else:
                     print('update')
                     user(i)['status'] = 'checked'
-                    user(i)['time'] = get_strtime()
-                    user(i)['timestamp'] = get_timestamp()
+                    user(i)['timestamp'] = time.time()
                     mongo.db.meeting.update_one({'meetingid': meetingid},
                                                 {'$set': m})
                     print('check-in successful!!!')

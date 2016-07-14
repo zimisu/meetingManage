@@ -63,7 +63,7 @@ def check_in():
             mongo.db.meeting.update_one({'meetingid': request.form['meetingid'],
                                          'attendee.openid': openid},
                                         {'$set': {'attendee.status': 'checked',
-                                                  'attendee.time': datetime.now()}})
+                                                  'attendee.time': datetime.now().timestamp()}})
             return json.jsonify({'result': 'ok'})
         else:
             return error_return('Can not find a corresponding meeting.')
