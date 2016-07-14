@@ -42,5 +42,9 @@ def get_timestamp(string=None):
     else:
         return time.mktime(time.strptime(string, TIME_FORMAT))
 
-def get_time():
-    pass
+
+def get_strtime(t=None):
+    if t is None:
+        return time.strftime(TIME_FORMAT)
+    else:
+        return time.strftime(TIME_FORMAT, time.localtime(time.time()))
