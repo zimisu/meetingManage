@@ -201,7 +201,7 @@ def check_in_scan():
     return render_template('check-in-scan.html')
 
 
-@app.route('/assign-punishment', methods=['GET'])
+@app.route('/assign-punishment_', methods=['GET'])
 @app.route('/assign-punishment.html', methods=['GET'])
 def assign_punishment():
     return render_template('assign-punishment.html')
