@@ -28,7 +28,7 @@ def get_strtime(t=None):
         return time.strftime(TIME_FORMAT, time.localtime(time.time()))
 
 
-def check_in(openid, meetingid):
+def check_in(openid, meetingid, punish_str=None):
     try:
         print(openid)
         print(meetingid)
@@ -50,6 +50,10 @@ def check_in(openid, meetingid):
                     print('update')
                     user(i)['status'] = 'checked'
                     user(i)['timestamp'] = time.time()
+                    if punish_str is not None:
+                        user(i)['punish_str'] = punish_str
+                    else:
+                        user(i)['punish_str'] = '没有惩罚 T.T'
                     mongo.db.meeting.update_one({'meetingid': meetingid},
                                                 {'$set': m})
                     print('check-in successful!!!')

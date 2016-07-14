@@ -39,7 +39,5 @@ def emit_checked_in(openid, meeting):
 
             return s
         else:
-            s = '签到成功'
-            wx.message.send_text(openid, s)
-
-            return s
+            wx.message.send_text(openid, '签到成功')
+            return '没有迟到，不用惩罚~'
