@@ -209,6 +209,7 @@ def punishments_html():
     return render_template('punishments.html')
 
 
+@app.route('/add-punishment_', methods=['GET'])
 @app.route('/add-punishment.html', methods=['GET'])
 def add_punishment_html():
     return render_template('add-punishment.html')
@@ -230,7 +231,6 @@ def check_in_members():
 @app.route('/check-in-meetings.html', methods=['GET'])
 def check_in_meetings():
     return render_template('check-in-meetings.html')
-
 
 
 from routes.ms import *
