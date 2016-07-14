@@ -30,9 +30,12 @@ def emit_checked_in(openid, meeting):
                 text, = p_obj['content']
                 punishment = text
 
-            wx.message.send_text(openid, '你已迟到%d分钟, 惩罚是%s' % (
+            punish_str = '你已迟到%d分钟, 惩罚是%s' % (
                 chidao,
                 punishment
-            ))
+            )
+            wx.message.send_text(openid, punish_str)
+            return punish_str
         else:
             wx.message.send_text(openid, '签到成功')
+            return '没有迟到，不用惩罚~'

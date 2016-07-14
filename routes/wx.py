@@ -71,6 +71,6 @@ def weixin():
         elif isinstance(msg, ScanEvent) or isinstance(msg, SubscribeScanEvent):
             openid = msg.source
             meetingid = msg.scene_id
-            emit_checked_in(openid=openid, meeting=mongo.db.meeting.find_one({'meetingid': meetingid}))
-            return check_in(openid=openid, meetingid=meetingid)
+            punish_str = emit_checked_in(openid=openid, meeting=mongo.db.meeting.find_one({'meetingid': meetingid}))
+            return check_in(openid=openid, meetingid=meetingid, punish_str=punish_str)
 

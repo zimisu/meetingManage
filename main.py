@@ -6,6 +6,7 @@ import traceback
 import pymongo.errors
 from libs.utility import error_return
 from datetime import datetime
+import time
 
 __author__ = 'kanchan'
 
@@ -71,6 +72,7 @@ def check_in():
 def meeting(meetingid=None):
     openid = request.args.get('openid', '')
     try:
+        now_time = time.time()
         if meetingid is None:
             if mongo.db.users.find({'openid': openid}).count() == 0:
                 print('openid: %s is not in mongodb.Should bind first.' % openid)
@@ -78,10 +80,12 @@ def meeting(meetingid=None):
             get_events_by_wxid_x(openid)
 
             ret = {'result': 'ok',
-                   'meetings': [i for i in mongo.db.meeting.find({'attendee.openid': openid}, {'_id': 0})]}
+                   'meetings': [i for i in mongo.db.meeting.find({'attendee.openid': openid,
+                                                                  'timestamp': {'$gt': now_time}}, {'_id': 0})]}
             return json.jsonify(ret)
         else:
-            ret = mongo.db.meeting.find_one({'meetingid': meetingid}, {'_id': 0})
+            ret = mongo.db.meeting.find_one({'meetingid': meetingid,
+                                             'timestamp': {'$gt': now_time}}, {'_id': 0})
             for i in range(len(ret['attendee'])):
                 if ret['attendee'][i]['openid'] != '':
                     wx_user = wx.user.get(ret['attendee'][i]['openid'])
