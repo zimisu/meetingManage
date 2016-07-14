@@ -3,7 +3,7 @@ from urllib.parse import urljoin
 
 from wechatpy import WeChatClient
 
-from app import cred, app, TOKEN
+from app import cred, app, TOKEN, mongo
 
 wx = WeChatClient(appid=cred['wx']['AppID'],
                   secret=cred['wx']['AppSecret'])
