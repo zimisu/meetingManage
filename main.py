@@ -5,6 +5,7 @@ from flask import json
 import traceback
 import pymongo.errors
 from libs.utility import error_return
+from datetime import datetime
 
 __author__ = 'kanchan'
 
@@ -61,7 +62,8 @@ def check_in():
                     break
             mongo.db.meeting.update_one({'meetingid': request.form['meetingid'],
                                          'attendee.openid': openid},
-                                        {'$set': {'attendee.status': 'checked'}})
+                                        {'$set': {'attendee.status': 'checked',
+                                                  'attendee.time': datetime.now()}})
             return json.jsonify({'result': 'ok'})
         else:
             return error_return('Can not find a corresponding meeting.')
