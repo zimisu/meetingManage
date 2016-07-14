@@ -88,6 +88,7 @@ def meeting(meetingid=None):
             ret = mongo.db.meeting.find_one({'meetingid': meetingid,
                                              'attendee.openid': openid}, {'_id': 0})
             for i in range(len(ret['attendee'])):
+                print(ret['attendee'])
                 wx_user = wx.user.get(ret['attendee'][i]['openid'])
                 ret['attendee'][i].update(wx_user)
             ret['result'] = 'ok'

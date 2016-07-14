@@ -1,4 +1,4 @@
-#-*-coding:utf-8-*- 
+# -*-coding:utf-8-*-
 __author__ = 'kanchan'
 
 from app import mongo
@@ -12,6 +12,20 @@ from libs.constants import TIME_FORMAT
 def error_return(reason):
     return json.jsonify({'result': 'failed',
                          'reason': reason})
+
+
+def get_timestamp(string=None):
+    if string is None:
+        return time.time()
+    else:
+        return time.mktime(time.strptime(string, TIME_FORMAT))
+
+
+def get_strtime(t=None):
+    if t is None:
+        return time.strftime(TIME_FORMAT)
+    else:
+        return time.strftime(TIME_FORMAT, time.localtime(time.time()))
 
 
 def check_in(openid, meetingid):
@@ -34,17 +48,3 @@ def check_in(openid, meetingid):
     except:
         traceback.print_exc()
         return error_return('Other exception')
-
-
-def get_timestamp(string=None):
-    if string is None:
-        return time.time()
-    else:
-        return time.mktime(time.strptime(string, TIME_FORMAT))
-
-
-def get_strtime(t=None):
-    if t is None:
-        return time.strftime(TIME_FORMAT)
-    else:
-        return time.strftime(TIME_FORMAT, time.localtime(time.time()))
