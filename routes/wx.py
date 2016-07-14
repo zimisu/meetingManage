@@ -2,13 +2,14 @@ from urllib.parse import urljoin, urlencode
 
 from flask import request
 from wechatpy import parse_message
-from wechatpy.events import ClickEvent
+from wechatpy.events import ClickEvent, SubscribeScanEvent, ScanEvent
 from wechatpy.exceptions import InvalidSignatureException
 from wechatpy.replies import TextReply
 from wechatpy.utils import check_signature
 
 from app import app, TOKEN
 from libs.constants import *
+from libs.utility import check_in
 
 
 @app.route('/weixin', methods=['GET', 'POST'])
@@ -43,3 +44,8 @@ def weixin():
                 )
 
                 return reply.render()
+        elif isinstance(msg, ScanEvent) or isinstance(msg, SubscribeScanEvent):
+            openid = msg.source
+            meetingid = msg.scene_id
+            return check_in(openid=openid, meetingid=meetingid)
+
