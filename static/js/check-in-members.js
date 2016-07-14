@@ -49,3 +49,8 @@ function showMembers() {
         }
     });
 }
+
+var socket = io.connect('http://bxchidao.qwert42.org:80');
+socket.on('check-in', function (user) {
+
+});
