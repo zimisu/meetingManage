@@ -15,6 +15,12 @@ from libs.constants import *
 from libs.outlook.events import get_events_by_wxid_x
 from libs.utility import check_in
 # from libs.outlook.events import get_events_by_wxid_x
+from libs.wx import wx
+
+
+def all_attendees_checked(attendees):
+    return len(list(map(lambda a: a['status'] == 'checked', attendees))) ==\
+           len(attendees) - 1
 
 
 @app.route('/weixin', methods=['GET', 'POST'])
@@ -71,6 +77,23 @@ def weixin():
         elif isinstance(msg, ScanEvent) or isinstance(msg, SubscribeScanEvent):
             openid = msg.source
             meetingid = msg.scene_id
-            emit_checked_in(openid=openid, meeting=mongo.db.meeting.find_one({'meetingid': meetingid}))
-            return check_in(openid=openid, meetingid=meetingid)
+            meeting = mongo.db.meeting.find_one({'meetingid': meetingid})
+            ps = emit_checked_in(openid=openid, meeting=meeting)
 
+            r = check_in(openid=openid, meetingid=meetingid, punish_str=ps)
+
+            meeting = mongo.db.meeting.find_one({'meetingid': meetingid})
+            if all_attendees_checked(meeting['attendee']):
+                s = '签到汇总\n%s'
+                r = []
+                for u in meeting['attendee']:
+                    full_u = mongo.db.users.find_one({'openid': u['openid']})
+                    r.append([full_u['outlook']['name'],
+                              meeting['attendee']['punish_str']])
+                s %= '\n'.join(map(lambda ss: ': '.join(ss), r))
+
+                wx.message.send_mass_text(
+                    map(lambda u: u['openid'], meeting['attendee']),
+                    s, is_to_all=True)
+
+            return r

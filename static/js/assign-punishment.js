@@ -14,7 +14,7 @@ window.onload = function () {
 
   var openId = getUrlParam('openid');
 
-  $('body').html('');
+  $('#ct').html('');
 
   $.ajax({
     url: '/meeting?openid=' + openId,
@@ -33,7 +33,7 @@ window.onload = function () {
           var hour = timestamp.getHours() + 1;
           var minute = timestamp.getMinutes() + 1;
           var show_date = year + '-' + month + '-' + date + ' ' + hour + ':' + minute;
-          $('body').append(
+          $('#ct').append(
             "<a class='meeting-item' href='/punishment_?a=1&meetingid=" + m.meetingid + "'>"
             + "<h2 class='meeting-name'>" + m.title + "</h2>"
             + "<span class='meeting-location'>@ " + m.place + "</span>"
@@ -42,11 +42,11 @@ window.onload = function () {
         }
 
         if (length == 0) {
-          $('body').append(
+          $('#ct').append(
             "<p>xxx内没有即将召开的会议_(:зゝ∠)_</p>"
           );
         } else {
-          $('body').append(
+          $('#ct').append(
             "<p>枣糕！出问题了！可能是账号授权失效，请重新绑定~</p>"
           );
         }
