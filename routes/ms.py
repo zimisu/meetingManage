@@ -27,18 +27,8 @@ def ms_login():
 def ms_login_cb():
     code = request.args.get('code', '')
     wx_uid = request.args.get('state', '')
-    pprint(wx_uid)
 
-    token_params = {
-        'client_id': cred['client_id'],
-        'client_secret': cred['secret'],
-        'code': code,
-        'grant_type': 'authorization_code',
-        'redirect_uri': REDIRECT_URI,
-        'resource': RESOURCE
-    }
-    r = requests.post(token_endpoint_url, data=token_params)
-    d = r.json()
+    d = get_token('authorization_code', code)
 
     user_detail = jwt.decode(d['id_token'], verify=False)
     user_detail.update({

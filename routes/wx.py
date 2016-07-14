@@ -4,11 +4,13 @@ from flask import request
 from wechatpy import parse_message
 from wechatpy.events import ClickEvent
 from wechatpy.exceptions import InvalidSignatureException
+from wechatpy.messages import TextMessage
 from wechatpy.replies import TextReply
 from wechatpy.utils import check_signature
 
 from app import app, TOKEN
 from libs.constants import *
+from libs.outlook.events import get_events_by_wxid_x
 
 
 @app.route('/weixin', methods=['GET', 'POST'])

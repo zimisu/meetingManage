@@ -93,3 +93,5 @@ ENV/
 
 
 cred.json
+
+test_*.py
