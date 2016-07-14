@@ -10,9 +10,8 @@ def emit_checked_in(openid, meeting):
 
     checkin_time = meeting['attendee']['openid']['time']
     if checkin_time > meeting['time']:
-        chidao = (checkin_time - meeting['time']).total_seconds / 60
+        chidao = (checkin_time - meeting['time']) / 60
 
-        punishment = ''
         p_obj = mongo.db.punishments.find_one({
             'punishment_id': meeting['punishment_id']
         })
