@@ -45,5 +45,5 @@ def get_events_by_wxid_x(openid):
 
             r = get_events_by_wxid(doc)
 
-    process_meeting_data(r)
+    process_meeting_data(r, openid)
     return r

@@ -19,7 +19,7 @@ from libs.wx import wx
 
 
 def all_attendees_checked(attendees):
-    return len(list(map(lambda a: a['status'] == 'checked', attendees))) ==\
+    return len(list(map(lambda a: a['status'] == 'checked', attendees))) == \
            len(attendees)
 
 
@@ -86,27 +86,35 @@ def weixin():
             openid = msg.source
             meetingid = msg.scene_id
             meeting = mongo.db.meeting.find_one({'meetingid': meetingid})
-            ps = emit_checked_in(openid=openid, meeting=meeting)
+            checkin_time, ps = emit_checked_in(openid=openid, meeting=meeting)
 
-            r = check_in(openid=openid, meetingid=meetingid, punish_str=ps)
+            r = check_in(openid=openid, meetingid=meetingid, punish_str=ps, checkin_time=checkin_time)
 
             meeting = mongo.db.meeting.find_one({'meetingid': meetingid})
+            print(meeting)
             if all_attendees_checked(meeting['attendee']):
                 s = '签到汇总\n%s'
                 ra = []
                 for u in meeting['attendee']:
+                    print(u)
                     full_u = mongo.db.users.find_one({'openid': u['openid']})
                     ra.append([full_u['outlook']['name'],
                                u['punish_str']])
                 s %= '\n'.join(map(lambda ss: ': '.join(ss), ra))
 
-                wx.message.send_mass_text(
-                    map(lambda u: u['openid'], meeting['attendee']),
-                    s, is_to_all=True)
+                tmp = list(map(lambda u: u['openid'], meeting['attendee']))
+                tmp.append(meeting['organizer']['openid'])
+                if len(tmp) > 1:
+                    wx.message.send_mass_text(tmp, s, is_to_all=True)
+                else:
+                    wx.message.send_text(tmp[0], s)
 
             # return r
+            wx.message.send_text(openid, r)
             reply = TextReply()
             reply.source = msg.target
             reply.target = msg.source
-            reply.content = r
-            return reply
+            reply.content = '请访问以下链接选择查看签到状况\n%s' % (
+                '%s/check-in-members?meetingid=%s' % (DOMAIN, meetingid)
+            )
+            return reply.render()

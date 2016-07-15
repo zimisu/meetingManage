@@ -30,6 +30,9 @@ def new_qr_code(meetingid):
             'scene': {'scene_id': meetingid}
         }
     })
+    meeting = mongo.db.meeting.find_one({'meetingid': meetingid})
+    wx.message.send_text(meeting['organizer']['openid'],
+                         '在%s可以看到签到情况' % '/'.join([DOMAIN, 'check-in-members?meetingid=' + meetingid]))
     return jsonify({'url': wx.qrcode.get_url(res['ticket']), 'result': 'ok'})
 
 
@@ -53,9 +56,6 @@ def check_in():
                                          'attendee.openid': openid},
                                         {'$set': {'attendee.status': 'checked',
                                                   'attendee.time': datetime.now().timestamp()}})
-            wx.message.send_text(openid, '在%s可以看到签到情况' % '/'.join(
-                [DOMAIN,
-                 'check-in-members?meetingid=' + request.form['meetingid']]))
             return jsonify({'result': 'ok'})
         else:
             return error_return('Can not find a corresponding meeting.')
@@ -84,7 +84,7 @@ def meeting(meetingid=None):
     end_time = end_time.timestamp()
 
     try:
-        now_time = time.time()
+        now_time = time.time() - 3600
         if meetingid is None:
             if mongo.db.users.find({'openid': openid}).count() == 0:
                 print('openid: %s is not in mongodb.Should bind first.' % openid)
@@ -93,7 +93,9 @@ def meeting(meetingid=None):
 
             ret = {'result': 'ok',
                    'meetings': [i for i in mongo.db.meeting.find({'organizer.openid': openid,
-                                                                  'timestamp': {'$gt': now_time, '$lt': end_time}}, {'_id': 0})]}
+                                                                  'timestamp': {'$gt': now_time, '$lt': end_time}},
+                                                                 {'_id': 0})]}
+            print(ret)
             return jsonify(ret)
         else:
             ret = mongo.db.meeting.find_one({'meetingid': meetingid,
@@ -200,7 +202,7 @@ def assign_punishment():
     return render_template('assign-punishment.html')
 
 
-@app.route('/punishments', methods=['GET'])
+@app.route('/punishments_', methods=['GET'])
 @app.route('/punishments.html', methods=['GET'])
 def punishments_html():
     return render_template('punishments.html')

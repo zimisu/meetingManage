@@ -29,7 +29,7 @@ def get_strtime(t=None):
         return time.strftime(TIME_FORMAT, time.localtime(time.time()))
 
 
-def check_in(openid, meetingid, punish_str=None):
+def check_in(openid, meetingid, punish_str=None, checkin_time=time.time()):
     try:
         print(openid)
         print(meetingid)
@@ -50,7 +50,7 @@ def check_in(openid, meetingid, punish_str=None):
                 else:
                     print('update')
                     user(i)['status'] = 'checked'
-                    user(i)['timestamp'] = time.time()
+                    user(i)['timestamp'] = checkin_time
                     if punish_str is not None:
                         user(i)['punish_str'] = punish_str
                     else:
@@ -74,7 +74,8 @@ def create_attendee(man):
     attendee = {'email': man['emailAddress']['address'],
                 'status': 'not checked',
                 'timestamp': 0,
-                'openid': ''}
+                'openid': '',
+                'punish_str': '没有签到，还没能生成惩罚哦'}
     tmp = mongo.db.users.find_one({'outlook.upn': attendee['email']})
     if tmp is not None:
         attendee['openid'] = tmp['openid']
@@ -90,7 +91,7 @@ def insert_meeting_data(m):
     result = {
         # todo: meetingid
         'meetingid': str(mongo.db.meeting.find().count()),
-        'timestamp': time.mktime(time.strptime(t, '%Y-%m-%dT%H:%M:%S')),
+        'timestamp': time.mktime(time.strptime(t, '%Y-%m-%dT%H:%M:%S')) + 8 * 3600,
         'id': m['id'],
         'title': m['subject'],
         'content': m['bodyPreview'],
@@ -105,10 +106,14 @@ def insert_meeting_data(m):
     mongo.db.meeting.insert(result)
 
 
-def process_meeting_data(data):
+def process_meeting_data(data, openid):
     # print('---------***-------')
     # for k in data:
     #     print(k)
     # print('---------***-------')
+    print(data)
     for m in data['value']:
-        insert_meeting_data(m)
+        organizer = mongo.db.users.find_one({'outlook.upn': m['organizer']['emailAddress']['address']})
+        if organizer is not None and organizer['openid'] == openid:
+            print('---------------')
+            insert_meeting_data(m)
