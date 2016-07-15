@@ -16,8 +16,10 @@ function showMembers() {
     $('.attended-members').html("");
     $('.absent-members').html("");
 
+    var meetingId = getUrlParam('meetingid');
+
     $.ajax({
-        url: '/meeting/' + getUrlParam('meetingid'),
+        url: '/meeting/' + meetingId,
         method: 'GET',
         dataType: 'JSON',
         success: function (response) {
@@ -58,6 +60,29 @@ function showMembers() {
                 }
 
                 $('.attended-count')[0].innerText = attendedCount + "/" + length;
+
+                $.ajax({
+                    url: '/bound_punishment',
+                    method: 'GET',
+                    dataType: 'JSON',
+                    data: {meetingid: meetingId},
+                    success: function (response) {
+                        if (response.result === 'ok') {
+                            console.log(response);
+
+                            var description = "";
+                            if (response.punishment.ptype === '0') {
+                                description = "如果迟到，就要" + response.punishment.content[0];
+                            } else if (response.punishment.ptype === '1') {
+                                description = "迟到每" + response.punishment.content[0] + "分钟，交出" + response.punishment.content[1] + "人民币！";
+                            } else if (response.punishment.ptype === '2') {
+                                description = "迟到每" + response.punishment.content[0] + "分钟，" + response.punishment.content[1] + "个" + response.punishment.content[2] + "！";
+                            }
+                        }
+
+                        $('.punishment').append(description);
+                    }
+                });
 
 
             }

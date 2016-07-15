@@ -81,7 +81,12 @@ window.onload = function () {
                     $("#punishments").append(el);
 
                     el = $(el);
-                    el.on('click', function () {
+                    console.log(el);
+                    console.log($(el));
+
+                    $(el).on('click', 'div', function () {
+
+                        console.log("click!");
 
                         if (mid != null) {
                             $.ajax({
