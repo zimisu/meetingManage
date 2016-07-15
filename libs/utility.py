@@ -95,11 +95,11 @@ def insert_meeting_data(m):
         'place': m['location']['displayName'],
         'start': 0,
         'punishment_id': 0,
+        'organizer': create_attendee(m['organizer']),
         'attendee': []
     }
     for man in m['attendees']:
         result['attendee'].append(create_attendee(man))
-    result['attendee'].append(create_attendee(m['organizer']))
     mongo.db.meeting.insert(result)
 
 

@@ -5,7 +5,7 @@ from flask import json
 import traceback
 import pymongo.errors
 from libs.utility import error_return
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 
 __author__ = 'kanchan'
@@ -71,6 +71,15 @@ def check_in():
 @app.route('/meeting/<meetingid>', methods=['GET'])
 def meeting(meetingid=None):
     openid = request.args.get('openid', '')
+    type_ = request.args.get('e', '')
+    if type_ == '1':
+        td = timedelta(days=7)
+    else:
+        td = timedelta(hours=1)
+
+    end_time = datetime.now() + timedelta(days=7)
+    end_time = end_time.timestamp()
+
     try:
         now_time = time.time()
         if meetingid is None:
@@ -80,16 +89,16 @@ def meeting(meetingid=None):
             get_events_by_wxid_x(openid)
 
             ret = {'result': 'ok',
-                   'meetings': [i for i in mongo.db.meeting.find({'attendee.openid': openid,
-                                                                  'timestamp': {'$gt': now_time}}, {'_id': 0})]}
+                   'meetings': [i for i in mongo.db.meeting.find({'organizer.openid': openid,
+                                                                  'timestamp': {'$gt': now_time, '$lt': end_time}}, {'_id': 0})]}
             return json.jsonify(ret)
         else:
             ret = mongo.db.meeting.find_one({'meetingid': meetingid,
-                                             'timestamp': {'$gt': now_time}}, {'_id': 0})
-            for i in range(len(ret['attendee'])):
-                if ret['attendee'][i]['openid'] != '':
-                    wx_user = wx.user.get(ret['attendee'][i]['openid'])
-                    ret['attendee'][i].update(wx_user)
+                                             'timestamp': {'$gt': now_time, '$lt': end_time}}, {'_id': 0})
+            for a in ret['attendee']:
+                if a['openid'] != '':
+                    wx_user = wx.user.get(a['openid'])
+                    a.update(wx_user)
             ret['result'] = 'ok'
             return json.jsonify(ret)
     except pymongo.errors.PyMongoError:

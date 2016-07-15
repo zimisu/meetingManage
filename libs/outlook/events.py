@@ -29,8 +29,8 @@ def get_events_by_wxid_x(openid):
     u = mongo.db.users.find_one({'openid': openid})
     r = get_events_by_wxid(u)
 
-    if 'odata.error' in r:
-        if r['odata.error']['code'] == 'Authentication_ExpiredToken':
+    if 'error' in r:
+        if r['error']['message'] == 'Access token has expired.':
             r = get_token('refresh_token', u['outlook']['refresh_token'])
 
             doc = mongo.db.users.find_one_and_update({
