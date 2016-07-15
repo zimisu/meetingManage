@@ -45,7 +45,14 @@ function showMembers() {
                     }
 
                 }
+
+                if (attendedCount === length) {
+                    $('.absent-members-section').css("display", "none");
+                }
+
                 $('.attended-count')[0].innerText = attendedCount + "/" + length;
+
+
             }
         }
     });
