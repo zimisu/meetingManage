@@ -26,7 +26,7 @@ def wx_menu_init():
         }, {
             'type': 'view',
             'name': '制定惩罚',
-            'url': urljoin(DOMAIN, 'assign-punishment_')
+            'url': urljoin(DOMAIN, 'assign-punishment')
         }]
     })
 

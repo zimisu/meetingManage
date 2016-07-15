@@ -207,7 +207,7 @@ def assign_punishment():
     return render_template('assign-punishment.html')
 
 
-@app.route('/punishments_', methods=['GET'])
+@app.route('/punishments', methods=['GET'])
 @app.route('/punishments.html', methods=['GET'])
 def punishments_html():
     return render_template('punishments.html')
