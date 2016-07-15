@@ -93,12 +93,12 @@ def weixin():
             meeting = mongo.db.meeting.find_one({'meetingid': meetingid})
             if all_attendees_checked(meeting['attendee']):
                 s = '签到汇总\n%s'
-                r = []
+                ra = []
                 for u in meeting['attendee']:
                     full_u = mongo.db.users.find_one({'openid': u['openid']})
-                    r.append([full_u['outlook']['name'],
+                    ra.append([full_u['outlook']['name'],
                               meeting['attendee']['punish_str']])
-                s %= '\n'.join(map(lambda ss: ': '.join(ss), r))
+                s %= '\n'.join(map(lambda ss: ': '.join(ss), ra))
 
                 wx.message.send_mass_text(
                     map(lambda u: u['openid'], meeting['attendee']),
