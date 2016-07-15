@@ -90,3 +90,7 @@ $('.save-punishment-btn')[2].onclick = function () {
         }
     });
 };
+
+function goBack() {
+    history.back(-1);
+}
