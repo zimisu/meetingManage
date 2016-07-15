@@ -53,6 +53,9 @@ def check_in():
                                          'attendee.openid': openid},
                                         {'$set': {'attendee.status': 'checked',
                                                   'attendee.time': datetime.now().timestamp()}})
+            wx.message.send_text(openid, '在%s可以看到签到情况' % '/'.join(
+                [DOMAIN,
+                 'check-in-members?meetingid=' + request.form['meetingid']]))
             return json.jsonify({'result': 'ok'})
         else:
             return error_return('Can not find a corresponding meeting.')
@@ -189,25 +192,6 @@ def attendee():
         reason = 'attendee(): Other error exists.'
         print(reason)
         return error_return(reason)
-
-
-@app.route('/app_args', methods=['GET'])
-def get_app_args():
-    return 'This url should not be used!'
-    # result = wx.jsapi.get_jsapi_ticket()
-    #
-    # ret = {
-    #     'appId': cred['wx']['AppID']
-    # }
-    #
-    # result['appId'] = cred['wx']['AppID']
-    # return result
-
-
-@app.route('/check-in-scan', methods=['GET'])
-@app.route('/check-in-scan.html', methods=['GET'])
-def check_in_scan():
-    return render_template('check-in-scan.html')
 
 
 @app.route('/assign-punishment', methods=['GET'])
