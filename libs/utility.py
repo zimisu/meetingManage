@@ -46,7 +46,6 @@ def check_in(openid, meetingid, punish_str=None):
             if user(i)['openid'] == openid:
                 if user(i)['status'] == 'checked':
                     print('This user doesn''t need to check in')
-                    # return '已经签到啦，不用重复签到'
                     wx.message.send_text(openid, '已经签到啦，不用重复签到')
                 else:
                     print('update')
@@ -60,7 +59,7 @@ def check_in(openid, meetingid, punish_str=None):
                                                 {'$set': m})
                     print('check-in successful!!!')
                     wx.message.send_text(openid, '签到成功！')
-                    # return '签到成功！'
+                return user(i)['punish_str']
     except pymongo.errors.PyMongoError:
         traceback.print_exc()
         reason = 'check_in(): Error when update mongodb in check_in().'

@@ -78,9 +78,9 @@ def meeting(meetingid=None):
     if type_ == '1':
         td = timedelta(days=7)
     else:
-        td = timedelta(hours=1)
+        td = timedelta(hours=100)
 
-    end_time = datetime.now() + timedelta(days=7)
+    end_time = datetime.now() + td
     end_time = end_time.timestamp()
 
     try:
