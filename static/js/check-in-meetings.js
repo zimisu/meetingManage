@@ -25,8 +25,8 @@ function showRecentMeetings() {
                     var year = timestamp.getFullYear();
                     var month = timestamp.getMonth() + 1;
                     var date = timestamp.getDate();
-                    var hour = timestamp.getHours() + 1;
-                    var minute = timestamp.getMinutes() + 1;
+                    var hour = timestamp.getHours();
+                    var minute = timestamp.getMinutes();
 
                     var show_date = year + "-" + month + "-" + date + " " + hour + ":" + minute;
 
