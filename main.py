@@ -1,11 +1,11 @@
 from app import app, mongo, sio
 from libs.wx import wx
 from flask import render_template, session
-from flask import json
+from flask import jsonify
 import traceback
 import pymongo.errors
 from libs.utility import error_return
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 
 __author__ = 'kanchan'
@@ -14,9 +14,9 @@ __author__ = 'kanchan'
 @app.route('/test', methods=['POST', 'GET'])
 def test():
     if request.method == 'GET':
-        return json.jsonify(request.args)
+        return jsonify(request.args)
     else:
-        return json.jsonify(request.form)
+        return jsonify(request.form)
 
 
 @app.route('/new-qr-code/<meetingid>', methods=['GET'])
@@ -30,7 +30,10 @@ def new_qr_code(meetingid):
             'scene': {'scene_id': meetingid}
         }
     })
-    return json.jsonify({'url': wx.qrcode.get_url(res['ticket']), 'result': 'ok'})
+    meeting = mongo.db.meeting.find_one({'meetingid': meetingid})
+    wx.message.send_text(meeting['organizer']['openid'],
+                         '在%s可以看到签到情况' % '/'.join([DOMAIN, 'check-in-members?meetingid=' + meetingid]))
+    return jsonify({'url': wx.qrcode.get_url(res['ticket']), 'result': 'ok'})
 
 
 @app.route('/check-in', methods=['POST'])
@@ -53,7 +56,7 @@ def check_in():
                                          'attendee.openid': openid},
                                         {'$set': {'attendee.status': 'checked',
                                                   'attendee.time': datetime.now().timestamp()}})
-            return json.jsonify({'result': 'ok'})
+            return jsonify({'result': 'ok'})
         else:
             return error_return('Can not find a corresponding meeting.')
     except pymongo.errors.PyMongoError:
@@ -71,8 +74,17 @@ def check_in():
 @app.route('/meeting/<meetingid>', methods=['GET'])
 def meeting(meetingid=None):
     openid = request.args.get('openid', '')
+    type_ = request.args.get('e', '')
+    if type_ == '1':
+        td = timedelta(days=7)
+    else:
+        td = timedelta(hours=100)
+
+    end_time = datetime.now() + td
+    end_time = end_time.timestamp()
+
     try:
-        now_time = time.time()
+        now_time = time.time() - 3600
         if meetingid is None:
             if mongo.db.users.find({'openid': openid}).count() == 0:
                 print('openid: %s is not in mongodb.Should bind first.' % openid)
@@ -80,18 +92,20 @@ def meeting(meetingid=None):
             get_events_by_wxid_x(openid)
 
             ret = {'result': 'ok',
-                   'meetings': [i for i in mongo.db.meeting.find({'attendee.openid': openid,
-                                                                  'timestamp': {'$gt': now_time}}, {'_id': 0})]}
-            return json.jsonify(ret)
+                   'meetings': [i for i in mongo.db.meeting.find({'organizer.openid': openid,
+                                                                  'timestamp': {'$gt': now_time, '$lt': end_time}},
+                                                                 {'_id': 0})]}
+            print(ret)
+            return jsonify(ret)
         else:
             ret = mongo.db.meeting.find_one({'meetingid': meetingid,
-                                             'timestamp': {'$gt': now_time}}, {'_id': 0})
-            for i in range(len(ret['attendee'])):
-                if ret['attendee'][i]['openid'] != '':
-                    wx_user = wx.user.get(ret['attendee'][i]['openid'])
-                    ret['attendee'][i].update(wx_user)
+                                             'timestamp': {'$gt': now_time, '$lt': end_time}}, {'_id': 0})
+            for a in ret['attendee']:
+                if a['openid'] != '':
+                    wx_user = wx.user.get(a['openid'])
+                    a.update(wx_user)
             ret['result'] = 'ok'
-            return json.jsonify(ret)
+            return jsonify(ret)
     except pymongo.errors.PyMongoError:
         traceback.print_exc()
         reason = 'meeting(): Error exists when get meeting in mongo.'
@@ -109,7 +123,7 @@ def punishments():
     try:
         ret = {'punishments': [i for i in mongo.db.punishments.find({}, {'_id': 0})],
                'result': 'ok'}
-        return json.jsonify(ret)
+        return jsonify(ret)
     except:
         traceback.print_exc()
         reason = 'punishments(): Error exists when get punishments'
@@ -128,7 +142,7 @@ def add_punishment():
             tmp['content'][i] = item['content' + str(i)]
         tmp['punishment_id'] = mongo.db.punishments.find().count()
         mongo.db.punishments.insert_one(tmp)
-        return json.jsonify({'result': 'ok'})
+        return jsonify({'result': 'ok'})
     except:
         traceback.print_exc()
         reason = 'add_punishment(): Error exists when add punishment'
@@ -143,7 +157,7 @@ def bind_meeting_punishment():
         punishment_id = request.args['punishment_id']
         mongo.db.meeting.update({'meetingid': meetingid},
                                 {'punishment_id': punishment_id})
-        return json.jsonify({'result': 'ok'})
+        return jsonify({'result': 'ok'})
     except pymongo.errors.PyMongoError:
         traceback.print_exc()
         reason = 'bind_meeting_punishment(): Error exists when bind punishment to meeting.'
@@ -168,7 +182,7 @@ def attendee():
             if user['openid'] == openid:
                 ret = user
                 ret['result'] = 'ok'
-                return json.jsonify(ret)
+                return jsonify(ret)
         return error_return('Could not find the attendee')
     except pymongo.errors.PyMongoError:
         traceback.print_exc()
@@ -182,26 +196,7 @@ def attendee():
         return error_return(reason)
 
 
-@app.route('/app_args', methods=['GET'])
-def get_app_args():
-    return 'This url should not be used!'
-    # result = wx.jsapi.get_jsapi_ticket()
-    #
-    # ret = {
-    #     'appId': cred['wx']['AppID']
-    # }
-    #
-    # result['appId'] = cred['wx']['AppID']
-    # return result
-
-
-@app.route('/check-in-scan', methods=['GET'])
-@app.route('/check-in-scan.html', methods=['GET'])
-def check_in_scan():
-    return render_template('check-in-scan.html')
-
-
-@app.route('/assign-punishment_', methods=['GET'])
+@app.route('/assign-punishment', methods=['GET'])
 @app.route('/assign-punishment.html', methods=['GET'])
 def assign_punishment():
     return render_template('assign-punishment.html')

@@ -7,6 +7,7 @@ import traceback
 from flask import json
 import time
 from libs.constants import TIME_FORMAT
+from libs.wx import wx
 
 
 def error_return(reason):
@@ -28,7 +29,7 @@ def get_strtime(t=None):
         return time.strftime(TIME_FORMAT, time.localtime(time.time()))
 
 
-def check_in(openid, meetingid, punish_str=None):
+def check_in(openid, meetingid, punish_str=None, checkin_time=time.time()):
     try:
         print(openid)
         print(meetingid)
@@ -45,11 +46,11 @@ def check_in(openid, meetingid, punish_str=None):
             if user(i)['openid'] == openid:
                 if user(i)['status'] == 'checked':
                     print('This user doesn''t need to check in')
-                    return '已经签到啦，不用重复签到'
+                    wx.message.send_text(openid, '已经签到啦，不用重复签到')
                 else:
                     print('update')
                     user(i)['status'] = 'checked'
-                    user(i)['timestamp'] = time.time()
+                    user(i)['timestamp'] = checkin_time
                     if punish_str is not None:
                         user(i)['punish_str'] = punish_str
                     else:
@@ -57,7 +58,8 @@ def check_in(openid, meetingid, punish_str=None):
                     mongo.db.meeting.update_one({'meetingid': meetingid},
                                                 {'$set': m})
                     print('check-in successful!!!')
-                    return '签到成功！'
+                    wx.message.send_text(openid, '签到成功！')
+                return user(i)['punish_str']
     except pymongo.errors.PyMongoError:
         traceback.print_exc()
         reason = 'check_in(): Error when update mongodb in check_in().'
@@ -72,7 +74,8 @@ def create_attendee(man):
     attendee = {'email': man['emailAddress']['address'],
                 'status': 'not checked',
                 'timestamp': 0,
-                'openid': ''}
+                'openid': '',
+                'punish_str': '没有签到，还没能生成惩罚哦'}
     tmp = mongo.db.users.find_one({'outlook.upn': attendee['email']})
     if tmp is not None:
         attendee['openid'] = tmp['openid']
@@ -88,25 +91,29 @@ def insert_meeting_data(m):
     result = {
         # todo: meetingid
         'meetingid': str(mongo.db.meeting.find().count()),
-        'timestamp': time.mktime(time.strptime(t, '%Y-%m-%dT%H:%M:%S')),
+        'timestamp': time.mktime(time.strptime(t, '%Y-%m-%dT%H:%M:%S')) + 8 * 3600,
         'id': m['id'],
         'title': m['subject'],
         'content': m['bodyPreview'],
         'place': m['location']['displayName'],
         'start': 0,
         'punishment_id': 0,
+        'organizer': create_attendee(m['organizer']),
         'attendee': []
     }
     for man in m['attendees']:
         result['attendee'].append(create_attendee(man))
-    result['attendee'].append(create_attendee(m['organizer']))
     mongo.db.meeting.insert(result)
 
 
-def process_meeting_data(data):
+def process_meeting_data(data, openid):
     # print('---------***-------')
     # for k in data:
     #     print(k)
     # print('---------***-------')
+    print(data)
     for m in data['value']:
-        insert_meeting_data(m)
+        organizer = mongo.db.users.find_one({'outlook.upn': m['organizer']['emailAddress']['address']})
+        if organizer is not None and organizer['openid'] == openid:
+            print('---------------')
+            insert_meeting_data(m)

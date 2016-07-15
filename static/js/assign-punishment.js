@@ -5,7 +5,6 @@
 
 window.onload = function () {
 
-
     var openId = getUrlParam('openid');
 
     $('#ct').html('');
