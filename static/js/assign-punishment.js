@@ -17,7 +17,7 @@ window.onload = function () {
   $('#ct').html('');
 
   $.ajax({
-    url: '/meeting?openid=' + openId,
+    url: '/meeting?openid=' + openId + '&t=1',
     method: 'GET',
     dataType: 'application/json',
     success: function (response) {

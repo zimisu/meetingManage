@@ -20,7 +20,7 @@ from libs.wx import wx
 
 def all_attendees_checked(attendees):
     return len(list(map(lambda a: a['status'] == 'checked', attendees))) ==\
-           len(attendees) - 1
+           len(attendees)
 
 
 @app.route('/weixin', methods=['GET', 'POST'])
