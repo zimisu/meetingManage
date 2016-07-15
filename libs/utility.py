@@ -7,6 +7,7 @@ import traceback
 from flask import json
 import time
 from libs.constants import TIME_FORMAT
+from libs.wx import wx
 
 
 def error_return(reason):
@@ -45,7 +46,8 @@ def check_in(openid, meetingid, punish_str=None):
             if user(i)['openid'] == openid:
                 if user(i)['status'] == 'checked':
                     print('This user doesn''t need to check in')
-                    return '已经签到啦，不用重复签到'
+                    # return '已经签到啦，不用重复签到'
+                    wx.message.send_text(openid, '已经签到啦，不用重复签到')
                 else:
                     print('update')
                     user(i)['status'] = 'checked'
@@ -57,7 +59,8 @@ def check_in(openid, meetingid, punish_str=None):
                     mongo.db.meeting.update_one({'meetingid': meetingid},
                                                 {'$set': m})
                     print('check-in successful!!!')
-                    return '签到成功！'
+                    wx.message.send_text(openid, '签到成功！')
+                    # return '签到成功！'
     except pymongo.errors.PyMongoError:
         traceback.print_exc()
         reason = 'check_in(): Error when update mongodb in check_in().'

@@ -104,4 +104,9 @@ def weixin():
                     map(lambda u: u['openid'], meeting['attendee']),
                     s, is_to_all=True)
 
-            return r
+            # return r
+            reply = TextReply()
+            reply.source = msg.target
+            reply.target = msg.source
+            reply.content = r
+            return reply
